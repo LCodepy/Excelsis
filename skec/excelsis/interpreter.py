@@ -51,6 +51,7 @@ class EXCELSISInterpreter:
                 break
 
         print()
+        print()
         print("PROGRAM FINISHED!")
         print()
 
