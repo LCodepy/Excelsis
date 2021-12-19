@@ -33,3 +33,9 @@ class InvalidArgumentError(Error):
         super().__init__(description)
         self.name = "Invalid Argument Error"
 
+
+class RTError(Error):
+
+    def __init__(self, description="Runtime Error: ") -> None:
+        super().__init__(description)
+        self.name = "Runtime Error"

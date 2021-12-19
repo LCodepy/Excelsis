@@ -10,14 +10,16 @@ class EXCELSISParser:
     def __init__(self, tokens: dict[list]) -> None:
         self.all_tokens = tokens
         self.tokens = None
+        self.current_cell = None
         self.token_index = -1
         self.current_token = None
 
     def parse(self) -> Union[dict[Optional[BinOpNode]], Error]:
         result = {}
-        for y, (k, tokens) in enumerate(self.all_tokens.items()):
+        for y, (k, (tokens, cell)) in enumerate(self.all_tokens.items()):
             self.token_index = -1
             self.tokens = tokens
+            self.current_cell = cell
             if len(self.tokens) <= 1:
                 result[k] = EOFNode()
                 continue
@@ -29,6 +31,9 @@ class EXCELSISParser:
         if isinstance(tok := self.current_token, NumberToken):
             self.advance()
             return NumberNode(tok)
+        if self.current_token is EXCELSISToken.QUESTIONMARK:
+            self.advance()
+            return BinOpNode(self.current_cell[0], EXCELSISToken.PIPE, self.current_cell[1])
         return InvalidSyntaxError("Expected expression!")
 
     def factor(self) -> Union[Node, Error]:

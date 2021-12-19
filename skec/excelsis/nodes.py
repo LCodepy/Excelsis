@@ -2,7 +2,7 @@ import sys
 from abc import ABC
 from typing import Optional, Any
 
-from ..excelsis.errors import Error, InvalidArgumentError
+from ..excelsis.errors import Error, InvalidArgumentError, InvalidTypeError, InvalidSyntaxError
 from ..excelsis.log import Log
 from ..excelsis.tokens import NumberToken
 
@@ -69,10 +69,20 @@ class FunctionNode(Node):
         self.interp_args = []
 
     def compile(self, *args) -> Optional[Error]:
+        if (
+            len(args) == 1 and
+            isinstance(args[0], InvalidSyntaxError) and
+            args[0].description == "Expected expression!" and
+            len(self.function.args.arguments) == 0
+        ):
+            args = []
         for i, arg in enumerate(args):
             if isinstance(arg, Error):
                 return InvalidArgumentError("Too few arguments!")
-            if not isinstance(arg, self.function.args.types[i]):
+            if isinstance(self.function.args.types[i], list):
+                if all(list(map(lambda x: not isinstance(arg, x), self.function.args.types[i]))):
+                    return InvalidArgumentError("Invalid argument type!")
+            elif not isinstance(arg, self.function.args.types[i]):
                 return InvalidArgumentError("Invalid argument type!")
 
     def feed(self, arg) -> None:
@@ -84,20 +94,29 @@ class FunctionNode(Node):
             # context.interp = context.interpret(context.parse_results[context.current_cell])
             return context.SKIP_INCREMENT
         elif self.function.name == "INPUT":
-            context.parse_results[context.current_cell] = NumberNode(NumberToken(int(input())))
+            try:
+                input_ = float(input())
+                if str(input_).endswith(".0"):
+                    input_ = int(input_)
+            except ValueError:
+                input_ = InvalidTypeError("Input type must be integer or float.")
+            context.parse_results[context.current_cell] = input_
             return context.parse_results[context.current_cell]
         elif self.function.name == "W":
-            if context.current_cell == self.interp_args[0].get_pos():
+            if context.previous_cell == self.interp_args[0].get_pos():
                 return InvalidArgumentError("Position to write cannot be same as cell position.")
             Log.i("INTERP ARGS", self.interp_args[1])
             context.interpreted[self.interp_args[0].get_pos()] = self.interp_args[1]
             context.parse_results[self.interp_args[0].get_pos()] = self.interp_args[1]
-            context.uninterpreted[self.interp_args[0].get_pos()] = self.args[1]
             Log.i("PARSE RESULTS 2", context.parse_results)
         elif self.function.name == "PR":
             sys.stdout.write(str(self.interp_args[0]))
         elif self.function.name == "PRB":
             sys.stdout.write(chr(self.interp_args[0]))
+        elif self.function.name == "INT":
+            context.parse_results[context.current_cell] = int(self.interp_args[0])
+        elif self.function.name == "FLOAT":
+            context.parse_results[context.current_cell] = float(self.interp_args[0])
 
     def __repr__(self) -> str:
         return repr(self.function).replace("...)", str(self.args)) + "  |=|  " + repr(self.function.args)
@@ -111,4 +130,3 @@ class EOFNode(Node):
 
     def __repr__(self) -> str:
         return f"EOF"
-

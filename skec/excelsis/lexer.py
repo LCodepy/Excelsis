@@ -92,11 +92,15 @@ class EXCELSISLexer:
                 tokens.append(EXCELSISToken.LPARENSOFT)
             elif self.current_char == ")":
                 tokens.append(EXCELSISToken.RPARENSOFT)
+            elif self.current_char == "?":
+                tokens.append(EXCELSISToken.QUESTIONMARK)
+            elif self.current_char == "#":
+                break
             elif not found:
                 tokens.append(InvalidSyntaxError("Illegal Character!"))
 
         tokens.append(EXCELSISToken.EOF)
-        return tokens
+        return [tokens, cell.get_pos()]
 
     def find_number(self) -> Union[NumberToken, Error]:
         n = ""
@@ -115,7 +119,7 @@ class EXCELSISLexer:
 
     def find_function(self) -> Union[FunctionToken, Error]:
         f = ""
-        while self.current_char != " " and self.current_pos < len(self.current_code):
+        while self.current_char not in (" ", "#") and self.current_pos < len(self.current_code):
             f += self.current_char
 
             self.advance()

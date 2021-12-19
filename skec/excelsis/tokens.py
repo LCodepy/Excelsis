@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Union, Any, Tuple
+
+from skec.excelsis.errors import InvalidTypeError, Error
 
 
 @dataclass
@@ -11,6 +15,34 @@ class CellPosition:
 
     def get_pos(self) -> Tuple[int, int]:
         return self.i, self.j
+
+    def add(self, a) -> Union[CellPosition, Error]:
+        if isinstance(a, CellPosition):
+            return CellPosition(self.i + a.i, self.j + a.j)
+        elif isinstance(a, int):
+            return CellPosition(self.i + a, self.j + a)
+        return InvalidTypeError("Invalid operand type on cell position!")
+
+    def sub(self, a) -> Union[CellPosition, Error]:
+        if isinstance(a, CellPosition):
+            return CellPosition(self.i - a.i, self.j - a.j)
+        elif isinstance(a, int):
+            return CellPosition(self.i - a, self.j - a)
+        return InvalidTypeError("Invalid operand type on cell position!")
+
+    def mul(self, a) -> Union[CellPosition, Error]:
+        if isinstance(a, CellPosition):
+            return InvalidTypeError("Cannot multiply cell position with cell position!")
+        elif isinstance(a, int):
+            return CellPosition(self.i * a, self.j * a)
+        return InvalidTypeError("Invalid operand type on cell position!")
+
+    def div(self, a) -> Union[CellPosition, Error]:
+        if isinstance(a, CellPosition):
+            return InvalidTypeError("Cannot divide cell position with cell position!")
+        elif isinstance(a, int):
+            return CellPosition(self.i // a, self.j // a)
+        return InvalidTypeError("Invalid operand type on cell position!")
 
 
 class EXCELSISToken(Enum):
@@ -29,6 +61,8 @@ class EXCELSISToken(Enum):
     LPARENSOFT = auto()
     BINAND = auto()
     EOF = auto()
+    QUESTIONMARK = auto()
+    HASHTAG = auto()
 
 
 @dataclass
@@ -63,14 +97,17 @@ class FuncArgs:
         if len(self.arguments) != len(self.types):
             raise ValueError("Arguments and types must be the same length!")
         for i, arg in enumerate(self.arguments):
-            if not isinstance(arg, self.types[i]):
+            if isinstance(self.types[i], list):
+                if all(list(map(lambda x: not isinstance(arg, x), self.types[i]))):
+                    self.invalid_arguments = True
+            elif not isinstance(arg, self.types[i]):
                 self.invalid_arguments = True
 
 
 class Functions:
 
     GOTO = Function("GOTO", FuncArgs(["position"], [CellPosition]))
-    PR = Function("PR", FuncArgs(["bin"], [int]))
+    PR = Function("PR", FuncArgs(["bin"], [[int, float]]))
     PRB = Function("PRB", FuncArgs(["bin"], [int]))
     INT = Function("INT", FuncArgs(["int"], [float]))
     FLOAT = Function("FLOAT", FuncArgs(["float"], [int]))

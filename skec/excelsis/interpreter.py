@@ -2,7 +2,7 @@ import copy
 from collections import defaultdict
 from typing import Union, Tuple, Callable, Any
 
-from ..excelsis.errors import Error, InvalidTypeError, InvalidSyntaxError
+from ..excelsis.errors import Error, InvalidTypeError, InvalidSyntaxError, RTError
 from ..excelsis.log import Log
 from ..excelsis.nodes import Node, NumberNode, UnaryOpNode, BinOpNode, FunctionNode, ValueOfNode, EOFNode
 from ..excelsis.tokens import EXCELSISToken, CellPosition
@@ -22,6 +22,7 @@ class EXCELSISInterpreter:
         self.HOLDER = type("HOLDER", (), {})
         self.SKIP_INCREMENT = type("SKIP_INCREMENT", (), {})
         self.finished = False
+        self.previous_cell = None
 
     def run(self, is_running: Callable) -> None:
         Log.i("", "")
@@ -32,14 +33,14 @@ class EXCELSISInterpreter:
             Log.i("", "")
             Log.i("CELL", str(self.current_cell))
             Log.i("CURRENT CELL VALUE", str(self.parse_results[self.current_cell]))
-            c = self.current_cell
+            self.previous_cell = self.current_cell
             self.interp = self.interpret(self.parse_results[self.current_cell])
             if self.interp not in (self.HOLDER, self.SKIP_INCREMENT):
                 self.interpreted[self.current_cell] = self.interp
             Log.i("INTERPRET", str(self.interp))
             Log.i("PARSE RESULTS", str(self.parse_results))
             Log.i("INTERPRETED", str(self.interpreted))
-            Log.i("INTERPRETED VALUE", str(self.interpreted[c]))
+            Log.i("INTERPRETED VALUE", str(self.interpreted[self.previous_cell]))
             Log.i("", "")
             if self.interp is not self.SKIP_INCREMENT:
                 self.increment()
@@ -58,7 +59,10 @@ class EXCELSISInterpreter:
     def interpret(self, node: Union[int, float, CellPosition, Error]) -> Union[int, float, CellPosition, Error]:
         if isinstance(node, (type(self.SKIP_INCREMENT), int, float, CellPosition, Error)):
             return node
-        return self.__getattribute__("interpret_" + node.name)(node)
+        try:
+            return self.__getattribute__("interpret_" + node.name)(node)
+        except RecursionError:
+            return RTError("Maximum recursion depth exceeded (probably due to circular reference)!")
 
     def interpret_NumberNode(self, node: NumberNode) -> Union[int, float, Error]:
         return node.token.value
@@ -79,15 +83,15 @@ class EXCELSISInterpreter:
             return right
 
         if node.token is EXCELSISToken.PLUS:
-            return left + right
+            return self.add(left, right)
         elif node.token is EXCELSISToken.MINUS:
-            return left - right
+            return self.sub(left, right)
         elif node.token is EXCELSISToken.MUL:
-            return left * right
+            return self.mul(left, right)
         elif node.token is EXCELSISToken.DIV:
-            return left / right
+            return self.div(left, right)
         elif node.token is EXCELSISToken.MODULO:
-            return left % right
+            return self.modulo(left, right)
         elif node.token is EXCELSISToken.EQUALS:
             return int(left == right)
         elif node.token is EXCELSISToken.PIPE:
@@ -117,7 +121,7 @@ class EXCELSISInterpreter:
         if isinstance(interp, (int, float, Error)):
             return interp
         elif isinstance(interp, CellPosition):
-            return self.interpret(self.parse_results[interp.get_pos()] or 0)
+            return self.interpret(p if not isinstance(p := self.parse_results[interp.get_pos()], EOFNode) else 0)
 
     def interpret_EOFNode(self, node: EOFNode) -> EOFNode:
         self.eof = True
@@ -128,6 +132,8 @@ class EXCELSISInterpreter:
             self.current_cell = (self.current_cell[0] + 1, self.current_cell[1])
         else:
             self.eof = True
+
+    # Other
 
     def top_left(self) -> Tuple[int, int]:
         mn = float("inf")
@@ -146,4 +152,41 @@ class EXCELSISInterpreter:
                 mx = k[0] + k[1]
                 m = k
         return m
+
+    def add(self, a, b) -> Union[Error, CellPosition, int, float]:
+        if isinstance(a, CellPosition):
+            return a.add(b)
+        elif isinstance(b, CellPosition):
+            return b.add(a)
+        return a + b
+
+    def sub(self, a, b) -> Union[Error, CellPosition, int, float]:
+        if isinstance(a, CellPosition):
+            return a.sub(b)
+        elif isinstance(b, CellPosition):
+            return b.sub(a)
+        return a - b
+
+    def mul(self, a, b) -> Union[Error, CellPosition, int, float]:
+        if isinstance(a, CellPosition):
+            return a.mul(b)
+        elif isinstance(b, CellPosition):
+            return b.mul(a)
+        return a * b
+
+    def div(self, a, b) -> Union[Error, CellPosition, int, float]:
+        if b == 0:
+            return 42
+        if isinstance(a, CellPosition):
+            return a.div(b)
+        if isinstance(b, CellPosition):
+            return b.div(a)
+        return a / b
+
+    def modulo(self, a, b) -> Union[Error, CellPosition, Error, int, float]:
+        if b == 0:
+            return 42
+        if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+            return a % b
+        return InvalidTypeError(f"Unsupported operand '%'!")
 

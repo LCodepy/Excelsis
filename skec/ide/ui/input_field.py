@@ -73,6 +73,10 @@ class InputField:
                         form_name = "%"
                     elif form_name == ".":
                         form_name = ":"
+                    elif form_name == "'":
+                        form_name = "?"
+                    elif form_name == "3":
+                        form_name = "#"
                 if self.app.event_handler.keydown(pygame.K_RALT):
                     if form_name == "w":
                         form_name = "|"
