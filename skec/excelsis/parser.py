@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Dict
 
 from ..excelsis.errors import InvalidSyntaxError, Error, InvalidTypeError
 from ..excelsis.nodes import BinOpNode, NumberNode, UnaryOpNode, FunctionNode, ValueOfNode, Node, EOFNode
@@ -7,14 +7,14 @@ from ..excelsis.tokens import NumberToken, EXCELSISToken, Function
 
 class EXCELSISParser:
 
-    def __init__(self, tokens: dict[list]) -> None:
+    def __init__(self, tokens: Dict) -> None:
         self.all_tokens = tokens
         self.tokens = None
         self.current_cell = None
         self.token_index = -1
         self.current_token = None
 
-    def parse(self) -> Union[dict[Optional[BinOpNode]], Error]:
+    def parse(self) -> Union[Dict, Error]:
         result = {}
         for y, (k, (tokens, cell)) in enumerate(self.all_tokens.items()):
             self.token_index = -1
@@ -31,9 +31,12 @@ class EXCELSISParser:
         if isinstance(tok := self.current_token, NumberToken):
             self.advance()
             return NumberNode(tok)
-        if self.current_token is EXCELSISToken.QUESTIONMARK:
+        elif self.current_token is EXCELSISToken.QUESTIONMARK:
             self.advance()
             return BinOpNode(self.current_cell[0], EXCELSISToken.PIPE, self.current_cell[1])
+        elif self.current_token is EXCELSISToken.DOLLAR:
+            self.advance()
+            return BinOpNode(0, EXCELSISToken.DOLLAR, 0)
         return InvalidSyntaxError("Expected expression!")
 
     def factor(self) -> Union[Node, Error]:

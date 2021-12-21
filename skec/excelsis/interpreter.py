@@ -23,6 +23,7 @@ class EXCELSISInterpreter:
         self.SKIP_INCREMENT = type("SKIP_INCREMENT", (), {})
         self.finished = False
         self.previous_cell = None
+        self.last_cell = (0, 0)
 
     def run(self, is_running: Callable) -> None:
         Log.i("", "")
@@ -34,9 +35,11 @@ class EXCELSISInterpreter:
             Log.i("CELL", str(self.current_cell))
             Log.i("CURRENT CELL VALUE", str(self.parse_results[self.current_cell]))
             self.previous_cell = self.current_cell
+            c = self.current_cell
             self.interp = self.interpret(self.parse_results[self.current_cell])
             if self.interp not in (self.HOLDER, self.SKIP_INCREMENT):
                 self.interpreted[self.current_cell] = self.interp
+            self.last_cell = c
             Log.i("INTERPRET", str(self.interp))
             Log.i("PARSE RESULTS", str(self.parse_results))
             Log.i("INTERPRETED", str(self.interpreted))
@@ -99,6 +102,8 @@ class EXCELSISInterpreter:
             if isinstance(left, int) or isinstance(right, int):
                 return CellPosition(left, right)
             return InvalidTypeError("Cell pos can only be integer!")
+        elif node.token is EXCELSISToken.DOLLAR:
+            return CellPosition(self.last_cell[0], self.last_cell[1])
 
         return InvalidTypeError("Unsupported operand!")
 

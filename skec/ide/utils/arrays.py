@@ -1,15 +1,15 @@
-from typing import Any
+from typing import Any, List
 
 
-def arr2d(rows, cols) -> list[list[None]]:
+def arr2d(rows, cols) -> List[List[None]]:
     return [[None for _ in range(cols)] for _ in range(rows)]
 
 
-def row2d(arr: list[Any], i: int) -> list[Any]:
+def row2d(arr: List[Any], i: int) -> List[Any]:
     return arr[i]
 
 
-def col2d(arr: list[Any], j: int) -> list[Any]:
+def col2d(arr: List[Any], j: int) -> List[Any]:
     x = []
     for row in arr:
         for i, el in enumerate(row):
@@ -18,7 +18,7 @@ def col2d(arr: list[Any], j: int) -> list[Any]:
     return x
 
 
-def cols2d(arr: list[Any]) -> list[Any]:
+def cols2d(arr: List[Any]) -> List[Any]:
     a = arr2d(len(arr[0]), len(arr))
 
     for i, row in enumerate(arr):

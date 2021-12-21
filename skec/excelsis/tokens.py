@@ -63,6 +63,7 @@ class EXCELSISToken(Enum):
     EOF = auto()
     QUESTIONMARK = auto()
     HASHTAG = auto()
+    DOLLAR = auto()
 
 
 @dataclass

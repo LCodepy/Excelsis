@@ -24,6 +24,9 @@ class Board:
         self.min_x_gap = 40
         self.min_y_gap = 40
 
+        self.x_fill = 0
+        self.y_fill = 40
+
         self.board_canvas = pygame.Surface((1000 - self.min_x_gap, 800 - self.min_y_gap))
 
         self.input_fields = defaultdict(None)
@@ -32,7 +35,7 @@ class Board:
 
         self.__last_held = 0
 
-        self.__keytime_held: defaultdict[float] = defaultdict(lambda: 0.0)
+        self.__keytime_held: defaultdict = defaultdict(lambda: 0.0)
 
     def update(self) -> None:
         for k, v in self.input_fields.items():
@@ -108,25 +111,39 @@ class Board:
     def render(self) -> None:
         self.app.canvas.blit(self.board_canvas, (self.min_x_gap, self.min_y_gap))
 
-        self.render_cells()
-
         for k, v in self.input_fields.items():
             if k == self.current_cell:
                 pygame.draw.rect(self.app.canvas, Config.BOARD_COLOR,
                                  [v.get_pos()[0] - 50, v.get_pos()[1] - 30, *Config.CELL_SIZE], 6)
             v.render()
 
+        self.render_fill()
+        self.render_cells()
+
+    def render_fill(self) -> None:
+        pygame.draw.rect(self.app.canvas,
+                         (0, 0, 0),
+                         [0, self.min_x_gap, self.x_fill, Config.WINDOW_SIZE[0] - self.min_x_gap])
+        pygame.draw.rect(self.app.canvas,
+                         (0, 0, 0),
+                         [0, 0, Config.WINDOW_SIZE[0], self.y_fill])
+
     def render_cells(self) -> None:
-        self.board_canvas = pygame.Surface((1000 - self.min_x_gap, 800 - self.min_y_gap))
+        self.board_canvas = pygame.Surface(Config.WINDOW_SIZE)
 
         if Config.SHOW_GRID:
             self.render_grid()
 
+        mx = 0
         for y in range(0, self.board_canvas.get_height() + 1, Config.CELL_SIZE[1]):
             if y == 0: continue
             _, i = self.get_cell_pos(0, y - self.min_y_gap - 10)
             self.app.canvas.blit(t := Label.text(self.app.assets.font24, str(i + 1), color=Config.BOARD_COLOR),
                                  (10, y + int(self.y_offset % 80) - t.get_height() // 2))
+            if t.get_width() > mx:
+                mx = t.get_width()
+
+        self.x_fill = mx + 20
 
         for x in range(0, self.board_canvas.get_width() + 1, Config.CELL_SIZE[0]):
             if x == 0: continue

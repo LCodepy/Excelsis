@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Tuple, Union, Any
+from typing import Tuple, Union, Any, Dict, List
 
 from ..excelsis.errors import Error, InvalidSyntaxError
 from ..excelsis.grammar import Grammar
@@ -10,7 +10,7 @@ from skec.ide.utils.arrays import cols2d
 
 class EXCELSISLexer:
 
-    def __init__(self, cells: defaultdict[Tuple[int, int], Cell]) -> None:
+    def __init__(self, cells: defaultdict) -> None:
         self.cells = cells
 
         self.current_char = None
@@ -18,14 +18,14 @@ class EXCELSISLexer:
         self.current_code = None
         self.current_cell = None
 
-    def execute(self) -> dict[list[EXCELSISToken]]:
+    def execute(self) -> Dict[List[Tuple[int, int]], List[EXCELSISToken]]:
         lex_res = {}
         for col in cols2d(self.format_cells()):
             for cell in col:
                 lex_res[cell.get_pos()] = self.read_cell(cell)
         return lex_res
 
-    def format_cells(self) -> list[list[Cell]]:
+    def format_cells(self) -> List[List[Cell]]:
         mn_y = 0
         mn_x = 0
         mx_y = 0
@@ -43,7 +43,7 @@ class EXCELSISLexer:
         return [[Cell(j, i, self.cells[i, j].code if (i, j) in self.cells else "") for j in range(mn_x, mx_x + 1)] for i
                 in range(mn_y, mx_y + 1)]
 
-    def read_cell(self, cell: Cell) -> list[Any]:
+    def read_cell(self, cell: Cell) -> List[Any]:
         code = cell.code
         self.current_code = code
         self.current_cell = cell
@@ -94,6 +94,8 @@ class EXCELSISLexer:
                 tokens.append(EXCELSISToken.RPARENSOFT)
             elif self.current_char == "?":
                 tokens.append(EXCELSISToken.QUESTIONMARK)
+            elif self.current_char == "$":
+                tokens.append(EXCELSISToken.DOLLAR)
             elif self.current_char == "#":
                 break
             elif not found:
