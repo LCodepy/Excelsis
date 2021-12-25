@@ -1,6 +1,6 @@
 import os
 
-from skec.ide.main.main import IDE
+from src.ide.main.main import IDE
 
 if __name__ == "__main__":
     os.system("cls")

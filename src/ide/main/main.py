@@ -3,7 +3,7 @@ import pickle
 
 import pygame
 
-from skec.excelsis.run import EXCELSISRunner
+from src.excelsis.run import EXCELSISRunner
 from ..components.board import Board
 from ..gfx.assets import Assets
 from ..main.config import Config

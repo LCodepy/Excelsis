@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Union, Any, Tuple
 
-from skec.excelsis.errors import InvalidTypeError, Error
+from src.excelsis.errors import InvalidTypeError, Error
 
 
 @dataclass

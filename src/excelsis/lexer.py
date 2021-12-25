@@ -4,8 +4,8 @@ from typing import Tuple, Union, Any, Dict, List
 from ..excelsis.errors import Error, InvalidSyntaxError
 from ..excelsis.grammar import Grammar
 from ..excelsis.tokens import EXCELSISToken, NumberToken, FunctionToken, Functions
-from skec.ide.components.cells import Cell
-from skec.ide.utils.arrays import cols2d
+from src.ide.components.cells import Cell
+from src.ide.utils.arrays import cols2d
 
 
 class EXCELSISLexer:

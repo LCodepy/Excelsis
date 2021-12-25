@@ -1,4 +1,4 @@
-from skec.ide.utils.singleton import Singleton
+from src.ide.utils.singleton import Singleton
 from colorama import Fore
 
 
