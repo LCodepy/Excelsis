@@ -2,9 +2,8 @@ import copy
 from collections import defaultdict
 from typing import Union, Tuple, Callable, Any
 
-from ..excelsis.errors import Error, InvalidTypeError, InvalidSyntaxError, RTError
-from ..excelsis.log import Log
-from ..excelsis.nodes import Node, NumberNode, UnaryOpNode, BinOpNode, FunctionNode, ValueOfNode, EOFNode
+from ..excelsis.errors import Error, InvalidTypeError, RTError
+from ..excelsis.nodes import NumberNode, UnaryOpNode, BinOpNode, FunctionNode, ValueOfNode, EOFNode
 from ..excelsis.tokens import EXCELSISToken, CellPosition
 
 
@@ -26,25 +25,15 @@ class EXCELSISInterpreter:
         self.last_cell = (0, 0)
 
     def run(self, is_running: Callable) -> None:
-        Log.i("", "")
-        Log.i("N", "----------------------------------")
         while True:
             if not is_running():
                 break
-            Log.i("", "")
-            Log.i("CELL", str(self.current_cell))
-            Log.i("CURRENT CELL VALUE", str(self.parse_results[self.current_cell]))
             self.previous_cell = self.current_cell
             c = self.current_cell
             self.interp = self.interpret(self.parse_results[self.current_cell])
             if self.interp not in (self.HOLDER, self.SKIP_INCREMENT):
                 self.interpreted[self.current_cell] = self.interp
             self.last_cell = c
-            Log.i("INTERPRET", str(self.interp))
-            Log.i("PARSE RESULTS", str(self.parse_results))
-            Log.i("INTERPRETED", str(self.interpreted))
-            Log.i("INTERPRETED VALUE", str(self.interpreted[self.previous_cell]))
-            Log.i("", "")
             if self.interp is not self.SKIP_INCREMENT:
                 self.increment()
             if isinstance(self.interp, Error):

@@ -3,7 +3,6 @@ from abc import ABC
 from typing import Optional, Any
 
 from ..excelsis.errors import Error, InvalidArgumentError, InvalidTypeError, InvalidSyntaxError
-from ..excelsis.log import Log
 from ..excelsis.tokens import NumberToken
 
 
@@ -91,7 +90,6 @@ class FunctionNode(Node):
     def execute(self, context) -> Any:
         if self.function.name == "GOTO":
             context.current_cell = self.interp_args[0].get_pos()
-            # context.interp = context.interpret(context.parse_results[context.current_cell])
             return context.SKIP_INCREMENT
         elif self.function.name == "INPUT":
             try:
@@ -105,10 +103,8 @@ class FunctionNode(Node):
         elif self.function.name == "W":
             if context.previous_cell == self.interp_args[0].get_pos():
                 return InvalidArgumentError("Position to write cannot be same as cell position.")
-            Log.i("INTERP ARGS", self.interp_args[1])
             context.interpreted[self.interp_args[0].get_pos()] = self.interp_args[1]
             context.parse_results[self.interp_args[0].get_pos()] = self.interp_args[1]
-            Log.i("PARSE RESULTS 2", context.parse_results)
         elif self.function.name == "PR":
             sys.stdout.write(str(self.interp_args[0]))
         elif self.function.name == "PRB":
