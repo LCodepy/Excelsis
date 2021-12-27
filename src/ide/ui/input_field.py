@@ -1,4 +1,5 @@
 import time
+import win32gui
 from threading import Timer
 from typing import Tuple
 
@@ -102,6 +103,11 @@ class InputField:
 
     def update_cursor(self) -> None:
         if not self.__show_cursor:
+            return
+
+        hwnd = pygame.display.get_wm_info()["window"]
+        if hwnd != win32gui.GetForegroundWindow():
+            self.__cursor_active = False
             return
 
         if not self.__cursor_timer.is_alive():

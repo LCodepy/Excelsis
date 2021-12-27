@@ -42,7 +42,11 @@ class Board:
             lx, ly = self.get_left_corner(k[1], k[0])
             v.set_pos(lx + 40, ly + 40)
             if k == self.current_cell:
+                text_before = v.text
                 v.update()
+                text_after = v.text
+                if text_before != text_after:
+                    self.app.saved = False
 
         self.cells[self.current_cell].code = self.input_fields[self.current_cell].text
 

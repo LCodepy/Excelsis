@@ -21,6 +21,12 @@ class IDE:
 
         self.win = pygame.display.set_mode(Config.WINDOW_SIZE, pygame.SRCALPHA)
         pygame.display.set_caption(Config.TITLE)
+        icon_path = os.path.join(os.getcwd(), "assets\\excelsis-icon.png")
+        if not os.path.exists(icon_path):
+            icon_path = os.path.join(os.getcwd()[:-4], "assets\\excelsis-icon.png")
+        pygame.display.set_icon(
+            pygame.image.load(icon_path).convert_alpha()
+        )
 
         self.clock = pygame.time.Clock()
 
@@ -50,6 +56,9 @@ class IDE:
         self.process_running = True
         self.check_for_thread_killed = False
 
+        # Saving
+        self.saved = False
+
     def run(self) -> None:
         """Runs the app."""
 
@@ -61,6 +70,8 @@ class IDE:
                 self.save_to_file(self.save_filename)
                 return
             self.render()
+
+            self.change_title_saved()
 
             self.clock.tick(Config.FPS)
 
@@ -92,6 +103,9 @@ class IDE:
             self.process_running = True
             self.runner.run(self.is_running)
             self.check_for_thread_killed = False
+
+    def change_title_saved(self) -> None:
+        pygame.display.set_caption(Config.TITLE + ("" if self.saved else "   *Not Saved"))
 
     def check_info_and_settings_input(self) -> None:
         if self.event_handler.keydown(pygame.K_RCTRL) or self.event_handler.keydown(pygame.K_LCTRL):
@@ -144,13 +158,18 @@ class IDE:
         if filename is None:
             return
         with open(filename, "wb") as file:
-            pickle.dump((self.board.cells, list(map(lambda x: (x[0], x[1].code), self.board.cells.items()))), file)
+            try:
+                pickle.dump((self.board.cells, list(map(lambda x: (x[0], x[1].code), self.board.cells.items()))), file)
+                self.saved = True
+            except (EOFError, pickle.PickleError):
+                print("\u001b[31mSOMETHING WENT WRONG WHILE SAVING!")
 
     def load_from_file(self, filename: str):
         with open(filename, "rb") as file:
             try:
                 return pickle.load(file)
             except (pickle.UnpicklingError, EOFError):
+                print("\u001b[31mSOMETHING WENT WRONG WHILE LOADING!")
                 return self.board.cells, None
 
     def is_running(self) -> bool:
