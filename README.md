@@ -155,7 +155,7 @@ When working with cell positions expressions work a little bit different. If we 
 we will not get the _CELL POSITION_, but the **value of the cell at that position**. So `(0|0)` and `[0|0]` are totally different.
 With parentheses we access the value of the cell and with square brackets we just get the _CELL POSITION_ as a data-type.
 
-Let's take a look a this example:
+Let's take a look at this example:
 ![Expressions](assets/console_and_expr.png)
 
 Program starts at `[0|0]` and writes number 128 in `[0|0]`. Then it goes to cell `[1|0]` where **the value** of the cell
