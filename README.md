@@ -146,6 +146,7 @@ arithmetics. Here are some examples:
 - `12 + [0|0] = [12|12]`
 - `3 - [0|0] = [-3|-3]`
 - `[1|2] + [5|6] = [6|8]`
+- `[1|-1] - [-1|1] = [2|-2]`
 - `[1|0] * 100 = [100|0]`
 - `[3|8] / 3 = [1|2]`
 > Note: Only difference when dealing with _CELL POSITIONs_ is that _INT_ * _CELL POSITION_ is actually _CELL POSITION_ * _INT_ and same with all other operations.
