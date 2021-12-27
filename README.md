@@ -128,7 +128,7 @@ There are two zero-argument functions in Excelsis:
  
  * `?` - Question-mark ('MARG') represents the _CELL POSITION_ of the cell that is currently being interpreted
  * `$` - Dollar-sign ('DARG') represents the previous _CELL POSITION_, better to say the position of a cell that lead the program 
-to cell that is currently being interpreted. If you use `$` on the cell `[0|0]` it will return `[0|0]`
+to the cell that is currently being interpreted. If you use `$` on the cell `[0|0]` it will return `[0|0]`
 
 Let's take the image below as an example:
 ![ZARGS](assets/ZARGS.png)
