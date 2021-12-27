@@ -48,9 +48,9 @@ When you finish with all the file-related needs, the ExcelsisIDE will open. It i
    4. Help bar
    
   
-The cell grid is where you write your code. Selected cell is the cell that has green edges. You can move on the cell grid
+The cell grid is where you write your code. The Selected cell is the cell that has green edges. You can move on the cell grid
 with arrow keys. The help bar shows you all keyboard shortcuts. To figure out where are you currently located on the cell
-grid you can look at vertical and horizontal ruler, For example:
+grid you can look at vertical and horizontal rulers, For example:
 
 ![Movement](assets/main-view-movement.png)
 
@@ -67,8 +67,8 @@ The code execution stops when the interpreter reaches an empty cell. So if you h
 
 ![Program Flow](assets/program-flow.png)
 
-Program will start at `[0|0]` and write a 0 in that cell. Then it will go one cell down to the cell `[1|0]` where it will write 
-1 in the cell `[1|0]`. The program continues the same way as explained until it reaches cell `[4|0]` where it halts.
+The program will start at `[0|0]` and write a 0 in that cell. Then it will go one cell down to cell `[1|0]` where it will write 
+1 in cell `[1|0]`. The program continues the same way as explained until it reaches cell `[4|0]` where it halts.
 
 If we take a look at this example:
 
@@ -108,7 +108,7 @@ Excelsis has 7 in-built functions:
  * `PRB` - Arguments(_INT_), writes the ascii character corresponding to the argument value
  * `W` - Arguments(_CELL POSITION_ and (_INT_ or _FLOAT_ or _CELL POSITION_)), writes the second argument in the cell position that is passed as the first argument
 
-Functions can only go on the beginning of the cell and can't be passed as arguments. Arguments are separated from function name
+Functions can only go on the beginning of the cell and can't be passed as arguments. Arguments are separated from function names
 by at least one **space**. Arguments are mutually separated by one **space** followed by `&` and then another **space**.
 
 ![Argument Separation](assets/input.png)
@@ -123,7 +123,7 @@ by at least one **space**. Arguments are mutually separated by one **space** fol
 
 #### Zero-argument functions (ZARGS) and expressions
 
-Zero-argument functions are special kind of 'functions' in Excelsis that take no arguments and still have different values, depending on where you use them.
+Zero-argument functions are special kinds of 'functions' in Excelsis that take no arguments and still have different values, depending on where you use them.
 There are two zero-argument functions in Excelsis:
  
  * `?` - Question-mark ('MARG') represents the _CELL POSITION_ of the cell that is currently being interpreted
@@ -151,9 +151,9 @@ arithmetics. Here are some examples:
 - `[3|8] / 3 = [1|2]`
 > Note: Only difference when dealing with _CELL POSITIONs_ is that _INT_ * _CELL POSITION_ is actually _CELL POSITION_ * _INT_ and same with all other operations.
 
-When working with cell positions expressions work a little bit different. If we put something like `0|0` in parentheses,
+When working with cell positions expressions work a little bit differently. If we put something like `0|0` in parentheses,
 we will not get the _CELL POSITION_, but the **value of the cell at that position**. So `(0|0)` and `[0|0]` are totally different.
-With parentheses we access the value of the cell and with square brackets we just get the _CELL POSITION_ as a data-type.
+With parentheses, we access the value of the cell and with square brackets, we get the _CELL POSITION_ as a data type.
 
 Let's take a look at this example:
 ![Expressions](assets/console_and_expr.png)
@@ -165,14 +165,14 @@ after which it halts.
 
 Playing with these expressions is sometimes dangerous because if you put `(?)` in a cell you will get a recursion error.
 And if you think about it, this expression doesn't make a lot of sense. How can you get the value of the cell if part of
-the value of that cell is the value of the cell. This sounds really confusing because it is, that expression just isn't
+the value of that cell is the value of the cell? This sounds really confusing because it is, that expression just isn't
 possible to interpret.
 
 #### Comments
 
-For the end I left the easiest part - comments.
+For the end, I left the easiest part - comments.
 
-There really isn't much to talk about here. Comments work the same way as in python. Everything after hashtag(`#`) will
+There isn't much to talk about here. Comments work the same way as in python. Everything after hashtag(`#`) will
 not be considered as part of the code. One comment applies to only one cell and to all lines in that cell.
 
 # Explore
