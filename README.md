@@ -182,6 +182,3 @@ not be considered as part of the code. One comment applies to only one cell and 
 Try to solve some popular programming problems with Excelsis or write a program in Excelsis and if you want you can send
 it here with some comments about how can we make Excelsis better and more fun :)
 
-# Credits
-
-Credits to Grga Škec.
